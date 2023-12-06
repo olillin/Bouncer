@@ -1,0 +1,24 @@
+{
+  "name": "bouncer",
+  "version": "1.0.0",
+  "description": "Hostname redirecting using bouncy",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/olillin/Bouncer.git"
+  },
+  "author": "Olillin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/olillin/Bouncer/issues"
+  },
+  "homepage": "https://github.com/olillin/Bouncer#readme",
+  "dependencies": {
+    "bouncy": "^3.2.2",
+    "dotenv": "^16.3.1",
+    "jsonschema": "^1.4.1"
+  }
+}
