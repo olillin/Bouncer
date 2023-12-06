@@ -42,7 +42,10 @@ if (def.behaviour == 'bounce' && def.port == PORT) {
     process.exit()
 }
 
-var server = bouncy(function (req, res, bounce) {
+var server = bouncy({
+    'key': fs.readFileSync('key.pem'),
+    'cert': fs.readFileSync('cert.pem'),
+}, function (req, res, bounce) {
     let port = hosts[req.headers.host]
     if (port) {
         bounce(port)

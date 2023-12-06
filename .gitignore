@@ -1,3 +1,4 @@
 node_modules/
 hosts.json
 .env
+*.pem
