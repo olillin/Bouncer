@@ -46,7 +46,7 @@ var server = bouncy({
     'key': fs.readFileSync('key.pem'),
     'cert': fs.readFileSync('cert.pem'),
 }, function (req, res, bounce) {
-    let port = hosts[req.headers.host]
+    let port = hosts.hosts[req.headers.host]
     if (port) {
         bounce(port)
     } else {
