@@ -72,15 +72,20 @@ const options = (fs.existsSync('cert.pem') && fs.existsSync('key.pem'))
     ? {'key': fs.readFileSync('key.pem'), 'cert': fs.readFileSync('cert.pem')}
     : {}
 const server = bouncy(options, function (req, res, bounce) {
+    console.log(`Request to host ${req.headers.host}`)
     let port = hosts.hosts[req.headers.host]
     if (port) {
         bounce(port)
+        console.log(`Bounced to port ${port}`)
     } else {
+        console.log('Host is not in hosts list')
         if (hosts.default.behaviour == 'bounce') {
             bounce(hosts.default.port)
+            console.log(`Bounced to port ${port}`)
         } else {
             res.statusCode = 404
             res.end()
+            console.log(`Sent error 404`)
         }
     }
 })
