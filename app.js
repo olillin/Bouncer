@@ -67,8 +67,8 @@ function reloadHosts(newHosts) {
     }
 }
 
-
-const options = (fs.existsSync('cert.pem') && fs.existsSync('key.pem'))
+const httpsSupported = fs.existsSync('cert.pem') && fs.existsSync('key.pem')
+const options = httpsSupported
     ? {'key': fs.readFileSync('key.pem'), 'cert': fs.readFileSync('cert.pem')}
     : {}
 const server = bouncy(options, function (req, res, bounce) {
@@ -91,4 +91,4 @@ const server = bouncy(options, function (req, res, bounce) {
 })
 
 server.listen(PORT)
-console.log(`Bouncer listening on port ${PORT}`)
+console.log(`Bouncer listening with ${httpsSupported ? 'HTTPS' : 'HTTP'} on port ${PORT}`)
