@@ -182,6 +182,7 @@ const options = config.https
           },
           key: fs.readFileSync(Object.values(config.https)[0].key),
           cert: fs.readFileSync(Object.values(config.https)[0].cert),
+          minVersion: 'TLSv1.2',
       }
     : {}
 const server = bouncy(options, function (req, res, bounce) {
