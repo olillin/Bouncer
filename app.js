@@ -159,9 +159,13 @@ function createSecureContext(hostname) {
     }
 }
 
-const options = {
-    SNICallback: hostname => secureContext[hostname],
-}
+const options = Object.hasOwnProperty.call(config, 'https')
+    ? {
+          SNICallback: hostname => secureContext[hostname],
+          key: fs.readFileSync(Object.values(config.https)[0].key),
+          cert: fs.readFileSync(Object.values(config.https)[0].cert),
+      }
+    : {}
 const server = bouncy(options, function (req, res, bounce) {
     const hostname = req.headers.host
     console.log(`Request to host ${hostname}`)
