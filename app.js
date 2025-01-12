@@ -122,7 +122,7 @@ function matchesStar(pattern, hostname) {
  * @returns {number|null}
  */
 function getPort(hostname) {
-    if (Object.hasOwnProperty.call(config.hosts, hostname)) {
+    if (config.hosts[hostname]) {
         return config.hosts[hostname]
     }
     for (let pattern in config.hosts) {
@@ -138,8 +138,8 @@ function getPort(hostname) {
  * @returns {{key: string, cert: string, ca?: string[]}|null}
  */
 function getHttps(hostname) {
-    if (!Object.hasOwnProperty.call(config, 'https')) return null
-    if (Object.hasOwnProperty.call(config.https, hostname)) return config.https[hostname]
+    if (!config.https) return null
+    if (config.https[hostname]) return config.https[hostname]
     for (let pattern in config.https) {
         if (matchesStar(pattern, hostname)) {
             return config.https[pattern]
@@ -159,7 +159,7 @@ function createSecureContext(hostname) {
     try {
         const key = fs.readFileSync(paths.key)
         const cert = fs.readFileSync(paths.cert)
-        if (Object.hasOwnProperty.call(paths, 'ca')) {
+        if (paths.ca) {
             const ca = []
             for (let path of paths.ca) {
                 ca.push(fs.readFileSync(path))
@@ -174,9 +174,12 @@ function createSecureContext(hostname) {
     }
 }
 
-const options = Object.hasOwnProperty.call(config, 'https')
+const options = config.https
     ? {
-          SNICallback: hostname => secureContext[hostname],
+          SNICallback: hostname => {
+              console.log(`Hit SNI: ${hostname}`)
+              return secureContext[hostname]
+          },
           key: fs.readFileSync(Object.values(config.https)[0].key),
           cert: fs.readFileSync(Object.values(config.https)[0].cert),
       }
