@@ -135,12 +135,27 @@ function getPort(hostname) {
 
 /**
  * @param {string} hostname
+ * @returns {{key: string, cert: string, ca?: string[]}|null}
+ */
+function getHttps(hostname) {
+    if (!Object.hasOwnProperty.call(config, 'https')) return null
+    if (Object.hasOwnProperty.call(config.https, hostname)) return config.https[hostname]
+    for (let pattern in config.https) {
+        if (matchesStar(pattern, hostname)) {
+            return config.https[pattern]
+        }
+    }
+    return null
+}
+
+/**
+ * @param {string} hostname
  * @returns {any|null}
  */
 function createSecureContext(hostname) {
-    if (!Object.hasOwnProperty.call(config, 'https') || !Object.hasOwnProperty.call(config.https, hostname)) return null
+    const paths = getHttps(hostname)
+    if (!paths) return null
 
-    const paths = config.https[hostname]
     try {
         const key = fs.readFileSync(paths.key)
         const cert = fs.readFileSync(paths.cert)
