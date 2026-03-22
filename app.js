@@ -41,7 +41,7 @@ function reloadConfig(newConfig) {
     try {
         // Schema validation
         const schema = JSON.parse(fs.readFileSync(CONFIG_SCHEMA).toString())
-        let res = new Validator().validate(newConfig, schema, { required: true })
+        const res = new Validator().validate(newConfig, schema, { required: true })
 
         if (!res.valid) {
             console.error(
@@ -73,9 +73,9 @@ function reloadConfig(newConfig) {
         if (!newConfig.https) {
             console.warn("'https' not defined in config. Not using HTTPS")
         } else {
-            for (let hostname in newConfig.hosts) {
+            for (const hostname in newConfig.hosts) {
                 let supportsHttps = false
-                for (let pattern in newConfig.https) {
+                for (const pattern in newConfig.https) {
                     if (matchesStar(pattern, hostname)) {
                         supportsHttps = true
                         break
@@ -93,7 +93,7 @@ function reloadConfig(newConfig) {
 
         // Update secure context
         secureContext = {}
-        for (let hostname in newConfig.hosts) {
+        for (const hostname in newConfig.hosts) {
             secureContext[hostname] = createSecureContext(hostname)
         }
         console.log('Secure context has been updated')
@@ -125,7 +125,7 @@ function getPort(hostname) {
     if (config.hosts[hostname]) {
         return config.hosts[hostname]
     }
-    for (let pattern in config.hosts) {
+    for (const pattern in config.hosts) {
         if (matchesStar(pattern, hostname)) {
             return config.hosts[pattern]
         }
@@ -140,7 +140,7 @@ function getPort(hostname) {
 function getHttps(hostname) {
     if (!config.https) return null
     if (config.https[hostname]) return config.https[hostname]
-    for (let pattern in config.https) {
+    for (const pattern in config.https) {
         if (matchesStar(pattern, hostname)) {
             return config.https[pattern]
         }
@@ -161,7 +161,7 @@ function createSecureContext(hostname) {
         const cert = fs.readFileSync(paths.cert)
         if (paths.ca) {
             const ca = []
-            for (let path of paths.ca) {
+            for (const path of paths.ca) {
                 ca.push(fs.readFileSync(path))
             }
             return tls.createSecureContext({ key: key, cert: cert, ca: ca })
@@ -187,21 +187,25 @@ const options = config.https
     : {}
 const server = bouncy(options, function (req, res, bounce) {
     const hostname = req.headers.host
-    console.log(`Request to host ${hostname}`)
-    let port = getPort(hostname)
-    if (port) {
-        bounce(port)
-        console.log(`Bounced to port ${port}`)
-    } else {
-        console.log('Host is not in hosts list')
-        if (config.default.behaviour == 'bounce') {
-            bounce(config.default.port)
-            console.log(`Bounced to port ${port}`)
+    try {
+        const port = getPort(hostname)
+        if (port) {
+            bounce(port)
+            console.log(`Bounce ${hostname} to ${port}`)
         } else {
-            res.statusCode = 404
-            res.end()
-            console.log(`Sent error 404`)
+            if (config.default.behaviour == 'bounce') {
+                console.log(`Bounce ${hostname} to default ${config.default.port}`)
+                bounce(config.default.port)
+            } else {
+                console.log(`Missing host ${hostname}. Sent error 404`)
+                res.statusCode = 404
+                res.end()
+            }
         }
+    } catch (error) {
+        console.log(`Bounce ${hostname}. Unexpected error:`, error)
+        res.statusCode = 500
+        res.end()
     }
 })
 
